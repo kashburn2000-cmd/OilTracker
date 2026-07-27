@@ -1,0 +1,13 @@
+{
+  "period": "2025-06-27",
+  "barrels_thousand": 402500,
+  "capacity_thousand": 727000,
+  "percent": 55.36,
+  "change_thousand": null,
+  "units": "thousand barrels",
+  "series": "WCSSTUS1",
+  "source": "sample",
+  "source_url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=wcsstus1&f=w",
+  "updated": null,
+  "history": []
+}

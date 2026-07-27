@@ -1,0 +1,42 @@
+name: Refresh SPR data
+
+on:
+  schedule:
+    # EIA publishes the Weekly Petroleum Status Report Wednesdays ~10:30 ET.
+    # 16:30 UTC clears both EST and EDT.
+    - cron: '30 16 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-spr
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch latest SPR level
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: node scripts/fetch-spr.mjs
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- data/spr.json; then
+            echo "No change in SPR data."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/spr.json
+          git commit -m "data: SPR level for $(node -p "require('./data/spr.json').period")"
+          git push

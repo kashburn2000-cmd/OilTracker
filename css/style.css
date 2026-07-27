@@ -1,0 +1,161 @@
+/* A glass of oil. Dark by design — this page commits to one look. */
+
+:root {
+  --bg:        #08070a;
+  --bg-lift:   #100c14;
+  --ink:       #ece7de;
+  --ink-mute:  #6c6660;
+  --ink-faint: #423d39;
+  --amber:     #c8791f;
+  --stack:     ui-sans-serif, -apple-system, "Segoe UI", Inter, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(120% 90% at 50% 42%, var(--bg-lift) 0%, var(--bg) 62%),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--stack);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.stage {
+  height: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(1.25rem, 4vh, 2.75rem) 1.25rem;
+  padding-bottom: max(clamp(1.25rem, 4vh, 2.75rem), env(safe-area-inset-bottom));
+  gap: 1rem;
+}
+
+/* ---- top label ---- */
+
+.eyebrow {
+  margin: 0;
+  font-size: clamp(.6rem, 1.6vw, .72rem);
+  font-weight: 500;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  text-align: center;
+  flex: none;
+}
+
+/* ---- the glass ---- */
+
+.vessel {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.5rem, 2vh, 1.5rem);
+  outline: none;
+}
+
+.glass {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  max-width: min(460px, 84vw);
+  max-height: 62vh;
+  display: block;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, .6));
+}
+
+/* ---- the one number ---- */
+
+.readout {
+  flex: none;
+  text-align: center;
+  line-height: 1;
+}
+
+.percent {
+  font-size: clamp(3.4rem, 13vw, 6.5rem);
+  font-weight: 200;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: .06em;
+}
+
+.pct-sign {
+  font-size: .3em;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--ink-mute);
+  transform: translateY(-.9em);
+}
+
+.asof {
+  margin: .55rem 0 0;
+  font-size: .68rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ---- everything else hides until you ask for it ---- */
+
+.detail {
+  flex: none;
+  height: 1.2rem;
+  font-size: .72rem;
+  letter-spacing: .12em;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .45s ease, transform .45s ease;
+  display: flex;
+  align-items: center;
+  gap: .5em;
+  white-space: nowrap;
+}
+
+.vessel:hover .detail,
+.vessel:focus-visible .detail,
+.vessel.revealed .detail { opacity: 1; transform: none; }
+
+.vessel:focus-visible .glass { filter: drop-shadow(0 0 26px rgba(200, 121, 31, .3)); }
+
+.detail-sep { color: var(--ink-faint); }
+
+.delta.up   { color: #7fa86b; }
+.delta.down { color: #b45d4a; }
+
+.credits {
+  flex: none;
+  font-size: .58rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.credits.sample { color: var(--amber); opacity: .75; }
+
+@media (max-height: 620px) {
+  .asof { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail { transition: none; }
+}
