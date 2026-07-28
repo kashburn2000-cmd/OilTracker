@@ -6,8 +6,8 @@ is: oil standing in salt caverns under the Gulf Coast. The headline number is
 reserve, the days don't.
 
 Underneath the reserve, the page lays out the record: the history buried in the
-strata, every emergency drawdown DOE has ever made, and the doctrine that made
-the Persian Gulf a standing American military commitment.
+strata, every declared emergency drawdown, and the doctrine that made the
+Persian Gulf a standing American military commitment.
 
 ## The argument
 
@@ -15,10 +15,13 @@ The site doesn't assert anything the sources don't. That's deliberate — ratio
 claims like deaths-per-barrel or dollars-per-barrel rest on contested estimates
 and give readers an easy reason to dismiss everything around them. Instead:
 
-- **The hero number is small.** ~20 days of consumption. The smallness is the
-  point, and it's just arithmetic on two published figures.
-- **The drawdown ledger is DOE's own record.** Four emergency releases in fifty
-  years: Desert Storm, Katrina, Libya, Ukraine. The list reads as what it is.
+- **The hero number is small.** Around fifteen days of consumption at the time
+  of writing. The smallness is the point, and it's just arithmetic on two
+  published figures.
+- **The drawdown ledger is DOE's own record.** Four declared emergency releases
+  since 1975: Desert Storm, Katrina, Libya, Ukraine. Beneath it, a line computed
+  from the live series reports any ongoing decline, so the page can't claim a
+  complete record while the reserve is quietly falling.
 - **The closing quote is primary source.** The Carter Doctrine, from the 1980
   State of the Union, declaring the Gulf a vital interest to be defended by
   military force. Not an interpretation — a president's own sentence.
@@ -71,8 +74,7 @@ with a real parser instead of a guess.
 1. Free EIA API key: <https://www.eia.gov/opendata/register.php>
 2. Add it as repository secret `EIA_API_KEY` (Settings → Secrets and variables
    → Actions).
-3. Run **Refresh SPR data** manually once, and read the log to see which source
-   won.
+3. Run **Refresh SPR data** manually once and check the log.
 4. Settings → Pages → Deploy from a branch → `main` / root.
 
 Until step 3, the page shows sample figures and says so in the footer.
@@ -94,7 +96,8 @@ css/style.css          type and layout
 js/app.js              builds the cutaway, animates the fill, binds the data
 data/spr.json          written by the workflow — the live reading
 data/context.json      the history. edit this to correct anything
-scripts/fetch-spr.mjs  DOE first, EIA fallback
+scripts/fetch-spr.mjs  the EIA fetch
+scripts/probe-doe.mjs  manual diagnostic, not part of the refresh
 ```
 
 The cutaway paints deliberately outside its viewBox (`overflow: visible`) so the
