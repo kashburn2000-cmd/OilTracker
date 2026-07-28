@@ -1,16 +1,255 @@
 {
-  "period": "2025-06-27",
-  "barrels_thousand": 402500,
+  "period": "2026-07-17",
+  "barrels_thousand": 311447,
   "capacity_thousand": 727000,
-  "percent": 55.36,
-  "change_thousand": null,
+  "percent": 42.84,
+  "consumption_thousand_bpd": 20519,
+  "days_of_consumption": 15.2,
+  "change_thousand": -5057,
   "units": "thousand barrels",
-  "series": "WCSSTUS1",
-  "source": "sample",
-  "source_url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=wcsstus1&f=w",
-  "updated": null,
-  "history": [],
-  "consumption_thousand_bpd": 20300,
-  "days_of_consumption": 19.8,
-  "cadence": "weekly"
+  "source": "EIA",
+  "cadence": "weekly",
+  "updated": "2026-07-28T14:13:20.522Z",
+  "history": [
+    {
+      "period": "2025-05-30",
+      "value": 401822
+    },
+    {
+      "period": "2025-06-06",
+      "value": 402059
+    },
+    {
+      "period": "2025-06-13",
+      "value": 402289
+    },
+    {
+      "period": "2025-06-20",
+      "value": 402526
+    },
+    {
+      "period": "2025-06-27",
+      "value": 402765
+    },
+    {
+      "period": "2025-07-04",
+      "value": 403003
+    },
+    {
+      "period": "2025-07-11",
+      "value": 402703
+    },
+    {
+      "period": "2025-07-18",
+      "value": 402503
+    },
+    {
+      "period": "2025-07-25",
+      "value": 402741
+    },
+    {
+      "period": "2025-08-01",
+      "value": 402976
+    },
+    {
+      "period": "2025-08-08",
+      "value": 403202
+    },
+    {
+      "period": "2025-08-15",
+      "value": 403425
+    },
+    {
+      "period": "2025-08-22",
+      "value": 404201
+    },
+    {
+      "period": "2025-08-29",
+      "value": 404710
+    },
+    {
+      "period": "2025-09-05",
+      "value": 405224
+    },
+    {
+      "period": "2025-09-12",
+      "value": 405728
+    },
+    {
+      "period": "2025-09-19",
+      "value": 405958
+    },
+    {
+      "period": "2025-09-26",
+      "value": 406700
+    },
+    {
+      "period": "2025-10-03",
+      "value": 406985
+    },
+    {
+      "period": "2025-10-10",
+      "value": 407745
+    },
+    {
+      "period": "2025-10-17",
+      "value": 408564
+    },
+    {
+      "period": "2025-10-24",
+      "value": 409097
+    },
+    {
+      "period": "2025-10-31",
+      "value": 409595
+    },
+    {
+      "period": "2025-11-07",
+      "value": 410393
+    },
+    {
+      "period": "2025-11-14",
+      "value": 410926
+    },
+    {
+      "period": "2025-11-21",
+      "value": 411424
+    },
+    {
+      "period": "2025-11-28",
+      "value": 411674
+    },
+    {
+      "period": "2025-12-05",
+      "value": 411922
+    },
+    {
+      "period": "2025-12-12",
+      "value": 412171
+    },
+    {
+      "period": "2025-12-19",
+      "value": 412971
+    },
+    {
+      "period": "2025-12-26",
+      "value": 413219
+    },
+    {
+      "period": "2026-01-02",
+      "value": 413464
+    },
+    {
+      "period": "2026-01-09",
+      "value": 413678
+    },
+    {
+      "period": "2026-01-16",
+      "value": 414484
+    },
+    {
+      "period": "2026-01-23",
+      "value": 414999
+    },
+    {
+      "period": "2026-01-30",
+      "value": 415213
+    },
+    {
+      "period": "2026-02-06",
+      "value": 415212
+    },
+    {
+      "period": "2026-02-13",
+      "value": 415441
+    },
+    {
+      "period": "2026-02-20",
+      "value": 415441
+    },
+    {
+      "period": "2026-02-27",
+      "value": 415441
+    },
+    {
+      "period": "2026-03-06",
+      "value": 415442
+    },
+    {
+      "period": "2026-03-13",
+      "value": 415442
+    },
+    {
+      "period": "2026-03-20",
+      "value": 415442
+    },
+    {
+      "period": "2026-03-27",
+      "value": 415064
+    },
+    {
+      "period": "2026-04-03",
+      "value": 413325
+    },
+    {
+      "period": "2026-04-10",
+      "value": 409181
+    },
+    {
+      "period": "2026-04-17",
+      "value": 405045
+    },
+    {
+      "period": "2026-04-24",
+      "value": 397924
+    },
+    {
+      "period": "2026-05-01",
+      "value": 392700
+    },
+    {
+      "period": "2026-05-08",
+      "value": 384095
+    },
+    {
+      "period": "2026-05-15",
+      "value": 374175
+    },
+    {
+      "period": "2026-05-22",
+      "value": 365112
+    },
+    {
+      "period": "2026-05-29",
+      "value": 357119
+    },
+    {
+      "period": "2026-06-05",
+      "value": 349192
+    },
+    {
+      "period": "2026-06-12",
+      "value": 340251
+    },
+    {
+      "period": "2026-06-19",
+      "value": 331191
+    },
+    {
+      "period": "2026-06-26",
+      "value": 325655
+    },
+    {
+      "period": "2026-07-03",
+      "value": 319489
+    },
+    {
+      "period": "2026-07-10",
+      "value": 316504
+    },
+    {
+      "period": "2026-07-17",
+      "value": 311447
+    }
+  ]
 }
