@@ -1,7 +1,15 @@
 {
   "_note": "Hand-authored historical context. Every figure here should be checked against the primary sources listed in `sources` before this site goes public — it was written without network access and has not been verified line by line.",
 
+  "war": {
+    "started": "2026-02-28",
+    "label": "the war with Iran",
+    "short": "the war"
+  },
+
   "strata": [
+    { "year": "Mar 2026", "text": "The Strait of Hormuz closes — the chokepoint the Carter Doctrine was written to keep open" },
+    { "year": "Feb 2026", "text": "The United States goes to war with Iran" },
     { "year": "2022", "text": "180 million barrels released after Russia invades Ukraine — the largest drawdown in the reserve's history" },
     { "year": "2011", "text": "30.6 million barrels released during the intervention in Libya" },
     { "year": "2005", "text": "11 million barrels released after Hurricane Katrina" },

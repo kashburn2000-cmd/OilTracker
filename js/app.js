@@ -107,15 +107,25 @@
       var line = el('path', {
         fill: 'none', stroke: '#e0a355', 'stroke-opacity': '.5', 'stroke-width': 1.5
       });
+      // The gap between where the oil stood before the war and where it stands
+      // now — the drawdown, drawn at the scale it actually happened.
+      var band = el('rect', { class: 'prewar-el prewar-band', x: box.x, width: box.width,
+                              y: 0, height: 0, fill: '#c8791f', 'fill-opacity': '.09' });
+      var dash = el('line', { class: 'prewar-el prewar-dash', stroke: '#c8791f',
+                              'stroke-opacity': '.5', 'stroke-width': 1.25,
+                              'stroke-dasharray': '5 4' });
       inner.appendChild(oil);
       inner.appendChild(line);
+      inner.appendChild(band);
+      inner.appendChild(dash);
       cavG.appendChild(inner);
 
       cavG.appendChild(el('rect', Object.assign({
         fill: 'none', stroke: 'rgba(255,255,255,.14)', 'stroke-width': 1.25
       }, box)));
 
-      wells.push({ oil: oil, line: line, top: c.top, bot: c.bot, cx: c.cx, w: c.w, phase: i * 1.9 });
+      wells.push({ oil: oil, line: line, band: band, dash: dash,
+                   top: c.top, bot: c.bot, cx: c.cx, w: c.w, phase: i * 1.9 });
     });
   }
 
@@ -136,6 +146,43 @@
     }
     w.line.setAttribute('d', d);
     w.oil.setAttribute('d', d + ' L' + x1 + ' 640 L' + x0 + ' 640 Z');
+  }
+
+  /* Each cavern is a different depth, so one fill fraction is a different y in
+     each — the pre-war level is four marks, not one horizontal line. */
+  function markPreWar(fillNow, fillThen, label) {
+    if (!(fillThen > fillNow + 0.005)) return;
+
+    wells.forEach(function (w) {
+      var span = w.bot - w.top;
+      var yThen = w.bot - fillThen * span;
+      var yNow = w.bot - fillNow * span;
+      w.band.setAttribute('y', yThen.toFixed(1));
+      w.band.setAttribute('height', (yNow - yThen).toFixed(1));
+      w.dash.setAttribute('x1', w.cx - w.w / 2 - 3);
+      w.dash.setAttribute('x2', w.cx + w.w / 2 + 3);
+      w.dash.setAttribute('y1', yThen.toFixed(1));
+      w.dash.setAttribute('y2', yThen.toFixed(1));
+    });
+
+    // Sits in the drained gap above the middle cavern, where there's now space.
+    var mid = wells[1];
+    var node = document.getElementById('prewarLabel');
+    node.setAttribute('y', (mid.bot - fillThen * (mid.bot - mid.top) - 15).toFixed(1));
+    node.textContent = label;
+
+    var reveal = function () { document.getElementById('scene').classList.add('marked'); };
+    if (reduceMotion) reveal(); else setTimeout(reveal, FILL_MS * 0.55);
+  }
+
+  /** The reading on or before `startISO`; null if the series doesn't reach back. */
+  function baselineAt(history, startISO) {
+    if (!history || !history.length || !startISO) return null;
+    var found = null;
+    for (var i = 0; i < history.length; i++) {
+      if (history[i].period <= startISO) found = history[i]; else break;
+    }
+    return found;
   }
 
   function easeOutCubic(p) { return 1 - Math.pow(1 - p, 3); }
@@ -173,7 +220,7 @@
     requestAnimationFrame(step);
   }
 
-  function renderReserve(data) {
+  function renderReserve(data, ctx) {
     var capacity = data.capacity_thousand || SEED.capacity_thousand;
     var burn = data.consumption_thousand_bpd || SEED.consumption_thousand_bpd;
     var barrels = data.barrels_thousand;
@@ -187,10 +234,30 @@
     document.getElementById('detail').textContent =
       millions(barrels) + ' barrels · ' + pct + '% of capacity · ' + formatDate(data.period);
 
-    document.getElementById('cutaway').setAttribute('aria-label',
-      'The Strategic Petroleum Reserve holds ' + millions(barrels) + ' barrels, ' + pct +
+    var aria = 'The Strategic Petroleum Reserve holds ' + millions(barrels) + ' barrels, ' + pct +
       ' percent of its capacity, or about ' + Math.round(days) +
-      ' days of U.S. petroleum consumption, as of ' + formatDate(data.period) + '.');
+      ' days of U.S. petroleum consumption, as of ' + formatDate(data.period) + '.';
+
+    // Where the oil stood when the war began, against where it stands now.
+    // Both are divided by today's consumption, so the comparison isolates the
+    // change in the reserve rather than mixing in a change in the denominator.
+    var war = ctx && ctx.war;
+    var base = war && baselineAt(data.history, war.started);
+    if (base) {
+      var daysThen = Math.round(base.value / burn);
+      var gone = (base.value - barrels) / 1000;
+      markPreWar(targetFill, Math.min(1, base.value / capacity), 'before the war');
+
+      var node = document.getElementById('sinceWar');
+      node.textContent = daysThen + ' days when ' + (war.short || 'the war') + ' began — ' +
+        gone.toFixed(0) + 'M barrels ago';
+      node.hidden = false;
+
+      aria += ' When ' + (war.label || 'the war') + ' began it held ' + millions(base.value) +
+        ' barrels, about ' + daysThen + ' days — a fall of ' + gone.toFixed(0) + ' million barrels since.';
+    }
+
+    document.getElementById('cutaway').setAttribute('aria-label', aria);
 
     if (data.source === 'sample') {
       document.getElementById('sourceNote').textContent =
@@ -205,19 +272,24 @@
      reasons that never get declared — mandated sales, exchanges, policy. This
      reads the decline straight off the committed series and states it without
      characterising it, so the page can't quietly go stale on a live drawdown. */
-  function renderLiveDrawdown(history, drawdowns) {
+  function renderLiveDrawdown(history, drawdowns, war) {
     if (!history || history.length < 8) return;
 
-    var peak = history[0];
-    for (var i = 1; i < history.length; i++) {
-      if (history[i].value > peak.value) peak = history[i];
+    // Measure from the war if we know when it started, otherwise from the peak.
+    var from = baselineAt(history, war && war.started);
+    if (!from) {
+      from = history[0];
+      for (var i = 1; i < history.length; i++) {
+        if (history[i].value > from.value) from = history[i];
+      }
     }
     var latest = history[history.length - 1];
-    var declineM = (peak.value - latest.value) / 1000;
-    if (declineM < 5 || peak === latest) return;
+    var declineM = (from.value - latest.value) / 1000;
+    if (declineM < 5 || from === latest) return;
 
-    var since = new Date(peak.period + 'T00:00:00Z')
+    var month = new Date(from.period + 'T00:00:00Z')
       .toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    var since = war && war.started ? (war.short || 'the war') + ' began in ' + month : month;
 
     var bigger = (drawdowns || []).filter(function (d) { return d.million_barrels > declineM; });
     var comparison = bigger.length === 0
@@ -254,7 +326,7 @@
       ledger.appendChild(li);
     });
 
-    renderLiveDrawdown(spr && spr.history, ctx.drawdowns);
+    renderLiveDrawdown(spr && spr.history, ctx.drawdowns, ctx.war);
 
     document.getElementById('quoteText').textContent = '“' + ctx.quote.text + '”';
     document.getElementById('quoteCite').textContent = ctx.quote.attribution;
@@ -287,7 +359,7 @@
   // Both together: the drawdown line needs the live series and the ledger.
   Promise.all([load('data/spr.json', SEED), load('data/context.json', null)])
     .then(function (results) {
-      renderReserve(results[0]);
+      renderReserve(results[0], results[1]);
       if (results[1]) renderContext(results[1], results[0]);
     });
 })();

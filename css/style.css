@@ -99,6 +99,35 @@ body {
   color: var(--ink-mute);
 }
 
+.since-war {
+  margin: .9rem 0 0;
+  font-size: clamp(.74rem, 2vw, .84rem);
+  letter-spacing: .04em;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+
+/* the pre-war level and the gap it left, revealed once the oil settles */
+.prewar-el {
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+
+#scene.marked .prewar-el { opacity: 1; }
+
+.prewar-label {
+  fill: var(--amber);
+  fill-opacity: .75;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prewar-el { transition: none; }
+}
+
 .lede {
   margin: 1.1rem auto 0;
   max-width: 26rem;

@@ -45,6 +45,9 @@
       <path id="domeEdge" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="1.5"/>
       <g id="wells"></g>
       <g id="caverns"></g>
+      <!-- label for the pre-war level; the marks themselves live inside each
+           cavern's clip so they can't spill past the salt -->
+      <text id="prewarLabel" class="prewar-el prewar-label" x="200" text-anchor="middle"></text>
 
       <!-- the surface -->
       <line x1="-3000" y1="90" x2="3400" y2="90" stroke="rgba(255,255,255,.20)" stroke-width="1.5"/>
@@ -55,6 +58,7 @@
   <div class="readout">
     <div class="days"><span id="days">—</span></div>
     <p class="days-unit">days</p>
+    <p class="since-war" id="sinceWar" hidden></p>
     <p class="lede">of U.S. petroleum consumption, buried in salt caverns beneath the Gulf Coast</p>
     <p class="detail" id="detail" aria-live="polite">&nbsp;</p>
   </div>

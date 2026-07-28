@@ -18,6 +18,12 @@ and give readers an easy reason to dismiss everything around them. Instead:
 - **The hero number is small.** Around fifteen days of consumption at the time
   of writing. The smallness is the point, and it's just arithmetic on two
   published figures.
+- **The war comparison is the same arithmetic, twice.** The reserve stood at
+  twenty days when the war with Iran began on 28 February 2026; it stands at
+  fifteen now. Both figures divide by today's consumption, so the comparison
+  isolates the change in the reserve rather than mixing in a moving
+  denominator. The cutaway marks the pre-war level in each cavern and tints
+  the gap — the drawdown at the scale it actually happened.
 - **The drawdown ledger is DOE's own record.** Four declared emergency releases
   since 1975: Desert Storm, Katrina, Libya, Ukraine. Beneath it, a line computed
   from the live series reports any ongoing decline, so the page can't claim a
@@ -95,7 +101,7 @@ index.html             the four sections: reserve, strata, ledger, doctrine
 css/style.css          type and layout
 js/app.js              builds the cutaway, animates the fill, binds the data
 data/spr.json          written by the workflow — the live reading
-data/context.json      the history. edit this to correct anything
+data/context.json      the history and the war date. edit this to correct anything
 scripts/fetch-spr.mjs  the EIA fetch
 scripts/probe-doe.mjs  manual diagnostic, not part of the refresh
 ```
@@ -104,6 +110,13 @@ The cutaway paints deliberately outside its viewBox (`overflow: visible`) so the
 ground runs edge to edge and continues down behind the headline — the number
 should read as being underground too. Everything stills under
 `prefers-reduced-motion`.
+
+## Changing the war date
+
+`data/context.json` → `war.started`. Everything keyed to it — the hero
+comparison, the cavern marks, the drawdown line under the ledger — recomputes
+from the live series. Remove the `war` block entirely and all of it hides
+cleanly; the page falls back to measuring the decline from the series peak.
 
 ## Notes on the numbers
 
