@@ -241,6 +241,17 @@ section:not(.hero) {
   font-variant-numeric: tabular-nums;
 }
 
+.live-note {
+  margin: 1.75rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(200, 121, 31, .45);
+  max-width: 32rem;
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--amber);
+}
+
 /* ─── doctrine ──────────────────────────────────────────────────────── */
 
 .doctrine blockquote {

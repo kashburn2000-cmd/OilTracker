@@ -2,18 +2,29 @@
 /*
  * Writes data/spr.json. Run by .github/workflows/update-data.yml.
  *
- * Two sources, in order of freshness:
+ * Source: EIA API v2, series WCSSTUS1 — weekly U.S. ending stocks of crude oil
+ * in the SPR, published Wednesdays around 10:30 ET.
  *
- *   1. DOE / Office of Fossil Energy — publishes SPR inventory daily. This is
- *      the primary source; EIA's weekly figure derives from it. It is a web
- *      page, not an API, so we scrape it and gate the result hard.
- *      *** The DOE parser below has never been run against the live page.
- *      *** Check the first workflow run's log before trusting it.
- *   2. EIA API v2, series WCSSTUS1 — weekly, stable, documented. Authoritative
- *      fallback whenever DOE fails or returns something implausible.
+ * Why not DOE, which publishes daily?
+ * ----------------------------------
+ * An earlier version scraped energy.gov first, since DOE is the primary source
+ * EIA derives from. Probing the live pages (scripts/probe-doe.mjs) killed that
+ * idea, and it is worth recording why:
  *
- * If both fail the script exits non-zero and leaves the committed data alone,
- * so a bad run shows up as a red workflow rather than a wrong number.
+ *   - The pages that state a number state *capacity*, not inventory. The
+ *     scraper's pattern matched "714 million barrels" on the SPR landing page —
+ *     the authorized capacity figure. That is 98% of the denominator, so it
+ *     would have rendered the reserve as nearly full and looked entirely
+ *     plausible while doing it.
+ *   - /ceser/spr-inventory, the page that does carry current inventory, ships
+ *     no number in its server-rendered text. The figure arrives client-side.
+ *   - DOE's own "Historical Inventory" link points at EIA.
+ *
+ * The lesson isn't "write a better regex" — it's that a number scraped from
+ * prose has no schema, so nothing distinguishes the figure you want from a
+ * differently-meaning number in the same sentence shape. Until a real endpoint
+ * turns up, weekly EIA data that is unambiguously the right series beats daily
+ * data that might be the wrong number.
  */
 
 import { writeFile, readFile } from 'node:fs/promises';
@@ -23,46 +34,14 @@ import { dirname, join } from 'node:path';
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'data', 'spr.json');
 
 // Authorized SPR storage capacity, thousand barrels. 727,000 is the statutory
-// maximum; DOE also quotes ~713,500 of design capacity.
+// maximum; DOE quotes 714,000 of authorized capacity across the four sites.
 const CAPACITY = Number(process.env.SPR_CAPACITY_THOUSAND || 727_000);
 
-// Fallback only. Real value comes from EIA series WRPUPUS2 when reachable.
+// Fallback only. Real value comes from EIA series WRPUPUS2.
 const CONSUMPTION_FALLBACK = 20_300; // thousand barrels/day of product supplied
 
-const DOE_URL = process.env.DOE_INVENTORY_URL ||
-  'https://www.energy.gov/ceser/strategic-petroleum-reserve';
-
+const WEEKS = 60;
 const UA = { 'User-Agent': 'oiltracker (+github actions)' };
-
-/** Anything outside this range is a parse failure, not a reading. */
-function plausible(thousandBarrels) {
-  return Number.isFinite(thousandBarrels) &&
-         thousandBarrels > 1_000 &&
-         thousandBarrels <= CAPACITY * 1.02;
-}
-
-/* ── source 1: DOE, daily ─────────────────────────────────────────────── */
-
-async function fromDOE() {
-  const res = await fetch(DOE_URL, { headers: UA });
-  if (!res.ok) throw new Error(`DOE responded ${res.status}`);
-  const html = await res.text();
-
-  // Looking for a phrase like "Current Inventory: 402.5 million barrels".
-  const m = html.match(/([\d,]+(?:\.\d+)?)\s*million\s+barrels/i);
-  if (!m) throw new Error('no inventory figure found in DOE page');
-
-  const thousands = Math.round(parseFloat(m[1].replace(/,/g, '')) * 1000);
-  if (!plausible(thousands)) throw new Error(`DOE figure implausible: ${thousands}`);
-
-  // The page states a date alongside the figure; fall back to today if absent.
-  const d = html.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);
-  const period = d ? d[0] : new Date().toISOString().slice(0, 10);
-
-  return { period, barrels_thousand: thousands, previous: null, source: 'DOE', cadence: 'daily' };
-}
-
-/* ── source 2: EIA, weekly ────────────────────────────────────────────── */
 
 function eiaUrl(route, series, length) {
   const url = new URL(`https://api.eia.gov/v2/${route}/data/`);
@@ -88,22 +67,7 @@ async function eiaSeries(route, series, length) {
   return rows; // newest first
 }
 
-async function fromEIA() {
-  const rows = await eiaSeries('petroleum/stoc/wstk', 'WCSSTUS1', 60);
-  const [latest, prev] = rows;
-  if (!plausible(latest.value)) throw new Error(`EIA figure implausible: ${latest.value}`);
-  return {
-    period: latest.period,
-    barrels_thousand: latest.value,
-    previous: prev ? prev.value : null,
-    history: rows.slice().reverse(),
-    source: 'EIA',
-    cadence: 'weekly'
-  };
-}
-
-/* ── consumption, for the days-of-cover figure ────────────────────────── */
-
+/** Non-fatal: a bad consumption fetch shouldn't take the whole refresh down. */
 async function consumption(previousValue) {
   try {
     const rows = await eiaSeries('petroleum/sum/sndw', 'WRPUPUS2', 1);
@@ -116,37 +80,36 @@ async function consumption(previousValue) {
   return previousValue || CONSUMPTION_FALLBACK;
 }
 
-/* ── main ─────────────────────────────────────────────────────────────── */
-
 async function main() {
   let existing = {};
   try { existing = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
 
-  let reading;
-  try {
-    reading = await fromDOE();
-    console.log('Source: DOE (daily).');
-  } catch (doeErr) {
-    console.warn(`DOE unavailable (${doeErr.message}); falling back to EIA.`);
-    reading = await fromEIA();
-    console.log('Source: EIA (weekly).');
+  const rows = await eiaSeries('petroleum/stoc/wstk', 'WCSSTUS1', WEEKS);
+  const [latest, prev] = rows;
+
+  // A stocks reading can legitimately be anywhere from near-empty to full, so
+  // this only catches a broken response, not a wrong-meaning number. That's
+  // exactly why the source has to be a named series rather than scraped prose.
+  if (!(latest.value > 1_000 && latest.value <= CAPACITY * 1.02)) {
+    throw new Error(`SPR figure outside plausible range: ${latest.value}`);
   }
 
   const burn = await consumption(existing.consumption_thousand_bpd);
 
   const payload = {
-    period: reading.period,
-    barrels_thousand: reading.barrels_thousand,
+    period: latest.period,
+    barrels_thousand: latest.value,
     capacity_thousand: CAPACITY,
-    percent: Number(((reading.barrels_thousand / CAPACITY) * 100).toFixed(2)),
+    percent: Number(((latest.value / CAPACITY) * 100).toFixed(2)),
     consumption_thousand_bpd: burn,
-    days_of_consumption: Number((reading.barrels_thousand / burn).toFixed(1)),
-    change_thousand: reading.previous === null ? null : reading.barrels_thousand - reading.previous,
+    days_of_consumption: Number((latest.value / burn).toFixed(1)),
+    change_thousand: prev ? latest.value - prev.value : null,
     units: 'thousand barrels',
-    source: reading.source,
-    cadence: reading.cadence,
+    series: 'WCSSTUS1',
+    source: 'EIA',
+    cadence: 'weekly',
     updated: new Date().toISOString(),
-    history: reading.history ?? existing.history ?? []
+    history: rows.slice().reverse() // oldest first
   };
 
   // Don't churn git history when only the timestamp moved.

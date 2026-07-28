@@ -34,26 +34,37 @@ is the only real vulnerability.
 
 ## Where the data comes from
 
-`scripts/fetch-spr.mjs` tries two sources in order of freshness:
-
-1. **DOE / Office of Fossil Energy** — publishes SPR inventory *daily*, and is
-   the primary source EIA's weekly number derives from. It's a web page rather
-   than an API, so the script scrapes it and hard-gates the result: anything
-   outside a plausible range is treated as a parse failure, not a reading.
-   **This parser has never run against the live page.** Check the first
-   workflow log to see whether it worked or quietly fell back.
-2. **EIA API v2**, series `WCSSTUS1` — weekly, documented, stable. This is the
-   verified path and the fallback whenever DOE fails.
-
-If both fail the script exits non-zero, leaving the committed data untouched, so
-a bad run surfaces as a red workflow rather than a wrong number on the page.
-
-Consumption (the denominator for days-of-cover) comes from EIA series
-`WRPUPUS2`. That fetch is non-fatal: if it fails the previous value is kept and
-a warning is logged, so a bad route can't take the whole refresh down.
+`scripts/fetch-spr.mjs` reads **EIA API v2, series `WCSSTUS1`** — weekly U.S.
+ending stocks of crude oil in the SPR. Consumption, the denominator for
+days-of-cover, comes from series `WRPUPUS2`; that fetch is non-fatal, so a bad
+route keeps the previous value instead of taking the refresh down.
 
 A daily GitHub Action commits the result to `data/spr.json`. No backend, no API
 key in the browser, no CORS.
+
+### Why not DOE, which publishes daily?
+
+An earlier version scraped energy.gov first, since DOE is the primary source EIA
+derives from. Probing the live pages (`scripts/probe-doe.mjs`) killed it:
+
+- The pages that state a number state **capacity, not inventory**. The scraper's
+  pattern matched `714 million barrels` on the SPR landing page — the authorized
+  capacity. That is 98% of the denominator, so it would have rendered the
+  reserve as nearly full and looked entirely plausible doing it. It only failed
+  because the production code matched raw HTML while the probe stripped tags
+  first. Luck, not design.
+- `/ceser/spr-inventory`, the page that does carry current inventory, ships no
+  number in its server-rendered text.
+- DOE's own "Historical Inventory" link points at EIA.
+
+The lesson isn't "write a better regex" — a number scraped from prose has no
+schema, so nothing distinguishes the figure you want from a differently-meaning
+number in the same sentence shape. Weekly data that is unambiguously the right
+series beats daily data that might be the wrong number.
+
+`scripts/probe-doe.mjs` remains as a manual workflow, now hunting for the
+endpoint behind the inventory widget. If one turns up, daily becomes possible
+with a real parser instead of a guess.
 
 ### Setup
 

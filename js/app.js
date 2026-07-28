@@ -201,7 +201,37 @@
     requestAnimationFrame(frame);
   }
 
-  function renderContext(ctx) {
+  /* The ledger lists declared emergency releases. The reserve also moves for
+     reasons that never get declared — mandated sales, exchanges, policy. This
+     reads the decline straight off the committed series and states it without
+     characterising it, so the page can't quietly go stale on a live drawdown. */
+  function renderLiveDrawdown(history, drawdowns) {
+    if (!history || history.length < 8) return;
+
+    var peak = history[0];
+    for (var i = 1; i < history.length; i++) {
+      if (history[i].value > peak.value) peak = history[i];
+    }
+    var latest = history[history.length - 1];
+    var declineM = (peak.value - latest.value) / 1000;
+    if (declineM < 5 || peak === latest) return;
+
+    var since = new Date(peak.period + 'T00:00:00Z')
+      .toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+    var bigger = (drawdowns || []).filter(function (d) { return d.million_barrels > declineM; });
+    var comparison = bigger.length === 0
+      ? ' — larger than any single release above.'
+      : ' — larger than every release above except ' +
+        bigger.map(function (d) { return d.date; }).join(' and ') + '.';
+
+    var node = document.getElementById('liveNote');
+    node.textContent = 'Since ' + since + ' the reserve has fallen ' +
+      declineM.toFixed(1) + ' million barrels' + comparison;
+    node.hidden = false;
+  }
+
+  function renderContext(ctx, spr) {
     var strata = document.getElementById('strataList');
     ctx.strata.forEach(function (s) {
       var li = document.createElement('li');
@@ -223,6 +253,8 @@
       li.style.setProperty('--share', (d.million_barrels / max * 100).toFixed(1) + '%');
       ledger.appendChild(li);
     });
+
+    renderLiveDrawdown(spr && spr.history, ctx.drawdowns);
 
     document.getElementById('quoteText').textContent = '“' + ctx.quote.text + '”';
     document.getElementById('quoteCite').textContent = ctx.quote.attribution;
@@ -246,13 +278,16 @@
   buildCaverns();
   buildSkyline();
 
-  fetch('data/spr.json', { cache: 'no-cache' })
-    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(renderReserve)
-    .catch(function () { renderReserve(SEED); });
+  function load(path, fallback) {
+    return fetch(path, { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .catch(function () { return fallback; });
+  }
 
-  fetch('data/context.json', { cache: 'no-cache' })
-    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(renderContext)
-    .catch(function () { /* the reserve still reads without the history */ });
+  // Both together: the drawdown line needs the live series and the ledger.
+  Promise.all([load('data/spr.json', SEED), load('data/context.json', null)])
+    .then(function (results) {
+      renderReserve(results[0]);
+      if (results[1]) renderContext(results[1], results[0]);
+    });
 })();
