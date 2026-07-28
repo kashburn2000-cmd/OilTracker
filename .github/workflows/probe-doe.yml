@@ -1,0 +1,31 @@
+name: Probe DOE
+
+# Diagnostic only — never runs on a schedule and never writes to the repo.
+# Use it to find out what DOE's pages actually contain, so the daily scrape in
+# fetch-spr.mjs can be written against the real markup instead of a guess.
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Extra URL to check first (optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Probe candidate DOE pages
+        env:
+          PROBE_URL: ${{ inputs.url }}
+        run: node scripts/probe-doe.mjs
