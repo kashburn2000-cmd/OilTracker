@@ -1,161 +1,308 @@
-/* A glass of oil. Dark by design — this page commits to one look. */
+/* Restrained on purpose. The record is doing the arguing; the page shouldn't
+   raise its voice over it. */
 
 :root {
   --bg:        #08070a;
   --bg-lift:   #100c14;
   --ink:       #ece7de;
-  --ink-mute:  #6c6660;
-  --ink-faint: #423d39;
+  --ink-mute:  #8a837b;
+  --ink-faint: #4a453f;
+  --rule:      rgba(255, 255, 255, .07);
   --amber:     #c8791f;
-  --stack:     ui-sans-serif, -apple-system, "Segoe UI", Inter, "Helvetica Neue", Arial, sans-serif;
+  --sans:  ui-sans-serif, -apple-system, "Segoe UI", Inter, "Helvetica Neue", Arial, sans-serif;
+  --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
 }
 
 * { box-sizing: border-box; }
 
-html, body {
-  height: 100%;
-  margin: 0;
-}
+html { scroll-behavior: smooth; }
 
 body {
-  background:
-    radial-gradient(120% 90% at 50% 42%, var(--bg-lift) 0%, var(--bg) 62%),
-    var(--bg);
+  margin: 0;
+  background: var(--bg);
   color: var(--ink);
-  font-family: var(--stack);
+  font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
 }
 
-.stage {
-  height: 100%;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ─── hero ──────────────────────────────────────────────────────────── */
+
+.hero {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: clamp(1.25rem, 4vh, 2.75rem) 1.25rem;
-  padding-bottom: max(clamp(1.25rem, 4vh, 2.75rem), env(safe-area-inset-bottom));
-  gap: 1rem;
+  padding: clamp(1.25rem, 3.5vh, 2.25rem) 1.25rem;
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  gap: clamp(.5rem, 2vh, 1.25rem);
+  /* the scene deliberately paints outside its box; clip it here */
+  overflow: hidden;
+  position: relative;
 }
-
-/* ---- top label ---- */
 
 .eyebrow {
   margin: 0;
-  font-size: clamp(.6rem, 1.6vw, .72rem);
+  flex: none;
+  font-size: clamp(.58rem, 1.5vw, .68rem);
   font-weight: 500;
   letter-spacing: .34em;
   text-transform: uppercase;
   color: var(--ink-mute);
   text-align: center;
-  flex: none;
 }
 
-/* ---- the glass ---- */
-
-.vessel {
+.cutaway {
   flex: 1 1 auto;
   min-height: 0;
+  margin: 0;
   width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: clamp(.5rem, 2vh, 1.5rem);
+  align-items: center;
   outline: none;
 }
 
-.glass {
-  flex: 1 1 auto;
-  min-height: 0;
+#scene {
   width: 100%;
-  max-width: min(460px, 84vw);
-  max-height: 62vh;
+  max-width: min(520px, 92vw);
+  max-height: 54vh;
   display: block;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, .6));
+  overflow: visible;   /* the ground runs edge to edge and on down the page */
 }
-
-/* ---- the one number ---- */
 
 .readout {
   flex: none;
+  position: relative;  /* above the strata painted behind it */
   text-align: center;
-  line-height: 1;
+  max-width: 34rem;
 }
 
-.percent {
-  font-size: clamp(3.4rem, 13vw, 6.5rem);
+.scroll-cue { position: relative; }
+
+.days {
+  font-size: clamp(4rem, 17vw, 8.5rem);
   font-weight: 200;
-  letter-spacing: -.04em;
+  line-height: .88;
+  letter-spacing: -.05em;
   font-variant-numeric: tabular-nums;
-  color: var(--ink);
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: .06em;
 }
 
-.pct-sign {
-  font-size: .3em;
-  font-weight: 400;
-  letter-spacing: 0;
+.days-unit {
+  margin: .35rem 0 0;
+  font-size: .66rem;
+  letter-spacing: .42em;
+  text-transform: uppercase;
   color: var(--ink-mute);
-  transform: translateY(-.9em);
 }
 
-.asof {
-  margin: .55rem 0 0;
+.lede {
+  margin: 1.1rem auto 0;
+  max-width: 26rem;
+  font-family: var(--serif);
+  font-size: clamp(.94rem, 2.4vw, 1.08rem);
+  line-height: 1.5;
+  color: var(--ink-mute);
+}
+
+.detail {
+  margin: .9rem 0 0;
   font-size: .68rem;
-  letter-spacing: .22em;
+  letter-spacing: .1em;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  transition: color .4s ease;
+}
+
+.cutaway:hover ~ .readout .detail,
+.readout:hover .detail { color: var(--ink-mute); }
+
+.scroll-cue {
+  flex: none;
+  margin: 0;
+  padding-top: .5rem;
+  font-size: .6rem;
+  letter-spacing: .26em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
 
-/* ---- everything else hides until you ask for it ---- */
+/* ─── shared section furniture ──────────────────────────────────────── */
 
-.detail {
-  flex: none;
-  height: 1.2rem;
-  font-size: .72rem;
-  letter-spacing: .12em;
-  color: var(--ink-mute);
-  font-variant-numeric: tabular-nums;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity .45s ease, transform .45s ease;
-  display: flex;
-  align-items: center;
-  gap: .5em;
-  white-space: nowrap;
+section:not(.hero) {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: clamp(4rem, 12vh, 8rem) 1.5rem;
 }
 
-.vessel:hover .detail,
-.vessel:focus-visible .detail,
-.vessel.revealed .detail { opacity: 1; transform: none; }
+.section-title {
+  margin: 0;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
 
-.vessel:focus-visible .glass { filter: drop-shadow(0 0 26px rgba(200, 121, 31, .3)); }
+.section-note {
+  margin: .8rem 0 2.5rem;
+  max-width: 30rem;
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--ink-faint);
+}
 
-.detail-sep { color: var(--ink-faint); }
+/* ─── strata ────────────────────────────────────────────────────────── */
 
-.delta.up   { color: #7fa86b; }
-.delta.down { color: #b45d4a; }
+.strata-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
 
-.credits {
-  flex: none;
-  font-size: .58rem;
+.strata-list li {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 1.5rem;
+  align-items: baseline;
+  padding: 1.25rem .25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* each layer a shade heavier than the one above it */
+.strata-list li:nth-child(n+4) { background: rgba(255, 255, 255, .012); }
+.strata-list li:nth-child(n+7) { background: rgba(255, 255, 255, .025); }
+
+.year {
+  font-size: .82rem;
+  letter-spacing: .16em;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.event {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.strata-list li:last-child .event { color: var(--amber); }
+
+/* ─── ledger ────────────────────────────────────────────────────────── */
+
+.ledger-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ledger-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 9rem 1fr auto;
+  gap: 1.25rem;
+  align-items: baseline;
+  padding: 1.4rem .25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* the bar is the whole point: 2022 is larger than the other three combined */
+.ledger-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: var(--share, 0%);
+  background: linear-gradient(90deg, rgba(200, 121, 31, .65), rgba(200, 121, 31, .12));
+}
+
+.when {
+  font-size: .82rem;
+  letter-spacing: .1em;
+  color: var(--ink-mute);
+}
+
+.why {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+
+.how-much {
+  font-size: .82rem;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── doctrine ──────────────────────────────────────────────────────── */
+
+.doctrine blockquote {
+  margin: 0;
+  border-left: 2px solid rgba(200, 121, 31, .45);
+  padding-left: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+.doctrine p {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(1.15rem, 3.2vw, 1.6rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.doctrine cite {
+  display: block;
+  margin-top: 1.5rem;
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: .7rem;
   letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  text-align: center;
 }
 
-.credits.sample { color: var(--amber); opacity: .75; }
+/* ─── credits ───────────────────────────────────────────────────────── */
 
-@media (max-height: 620px) {
-  .asof { display: none; }
+.credits {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem clamp(3rem, 8vh, 5rem);
+  border-top: 1px solid var(--rule);
+  font-size: .66rem;
+  letter-spacing: .14em;
+  color: var(--ink-faint);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .detail { transition: none; }
+.credits p { margin: 0 0 1rem; }
+.credits .sample { color: var(--amber); }
+
+.source-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.75rem;
+}
+
+.source-list a {
+  color: var(--ink-faint);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2px;
+}
+
+.source-list a:hover { color: var(--ink-mute); }
+
+@media (max-width: 34rem) {
+  .strata-list li { grid-template-columns: 3.5rem 1fr; gap: 1rem; }
+  .ledger-list li { grid-template-columns: 1fr auto; row-gap: .35rem; }
+  .ledger-list .when { grid-column: 1 / -1; }
 }

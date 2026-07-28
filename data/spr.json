@@ -9,5 +9,8 @@
   "source": "sample",
   "source_url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=wcsstus1&f=w",
   "updated": null,
-  "history": []
+  "history": [],
+  "consumption_thousand_bpd": 20300,
+  "days_of_consumption": 19.8,
+  "cadence": "weekly"
 }

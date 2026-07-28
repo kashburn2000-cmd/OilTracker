@@ -3,117 +3,91 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>U.S. Strategic Petroleum Reserve</title>
-<meta name="description" content="A live view of how full the U.S. Strategic Petroleum Reserve is.">
+<title>Twenty Days — The U.S. Strategic Petroleum Reserve</title>
+<meta name="description" content="How much oil the United States keeps buried, measured in days, and what it cost to guarantee it.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#08070a">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23090810'/><rect x='30' y='42' width='40' height='38' rx='6' fill='%23c8791f'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23090810'/><rect x='38' y='30' width='24' height='52' rx='12' fill='%23c8791f'/></svg>">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<main class="stage">
+<!-- ─── the reserve, right now ─────────────────────────────────────────── -->
+<section class="hero">
 
   <h1 class="eyebrow">U.S. Strategic Petroleum Reserve</h1>
 
-  <div class="vessel" id="vessel" tabindex="0" role="img"
-       aria-label="A glass showing the fill level of the U.S. Strategic Petroleum Reserve.">
-
-    <svg class="glass" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+  <figure class="cutaway" id="cutaway" tabindex="0" role="img" aria-label="Loading reserve level.">
+    <svg id="scene" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <defs>
-        <!-- interior cavity: everything oil-related is clipped to this -->
-        <clipPath id="cavity">
-          <path d="M66 66 L91 540 Q93 560 112 560 L288 560 Q307 560 309 540 L334 66 Z"/>
-        </clipPath>
-
         <linearGradient id="oilBody" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stop-color="#1b1207"/>
           <stop offset="30%"  stop-color="#0d0904"/>
           <stop offset="100%" stop-color="#040302"/>
         </linearGradient>
-
-        <!-- warm sheen down the left of the column -->
-        <linearGradient id="oilSheen" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%"   stop-color="#c8791f" stop-opacity="0"/>
-          <stop offset="14%"  stop-color="#c8791f" stop-opacity=".13"/>
-          <stop offset="34%"  stop-color="#c8791f" stop-opacity="0"/>
-          <stop offset="88%"  stop-color="#8a4d12" stop-opacity="0"/>
-          <stop offset="98%"  stop-color="#8a4d12" stop-opacity=".10"/>
+        <!-- user space, so the dome dissolves into the rock at a fixed depth
+             instead of stretching with the path's very tall bounding box -->
+        <linearGradient id="domeBody" gradientUnits="userSpaceOnUse" x1="0" y1="176" x2="0" y2="1020">
+          <stop offset="0%"   stop-color="#181420"/>
+          <stop offset="55%"  stop-color="#131019"/>
+          <stop offset="100%" stop-color="#0f0d13" stop-opacity="0"/>
         </linearGradient>
-
-        <linearGradient id="glassBody" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%"   stop-color="#ffffff" stop-opacity=".16"/>
-          <stop offset="12%"  stop-color="#ffffff" stop-opacity=".04"/>
-          <stop offset="50%"  stop-color="#ffffff" stop-opacity=".01"/>
-          <stop offset="88%"  stop-color="#ffffff" stop-opacity=".05"/>
-          <stop offset="100%" stop-color="#ffffff" stop-opacity=".13"/>
-        </linearGradient>
-
-        <linearGradient id="puddle" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#c8791f" stop-opacity=".20"/>
-          <stop offset="100%" stop-color="#c8791f" stop-opacity="0"/>
-        </linearGradient>
-
-        <radialGradient id="halo" cx="50%" cy="52%" r="50%">
-          <stop offset="0%"   stop-color="#8a4d12" stop-opacity=".28"/>
+        <radialGradient id="halo" cx="50%" cy="58%" r="52%">
+          <stop offset="0%"   stop-color="#8a4d12" stop-opacity=".20"/>
           <stop offset="100%" stop-color="#8a4d12" stop-opacity="0"/>
         </radialGradient>
       </defs>
 
-      <!-- ambient glow behind the glass -->
-      <ellipse cx="200" cy="320" rx="235" ry="260" fill="url(#halo)"/>
+      <!-- everything below is drawn by js/app.js: strata, salt dome, caverns, oil -->
+      <g id="strata"></g>
+      <ellipse cx="200" cy="420" rx="215" ry="230" fill="url(#halo)"/>
+      <path id="dome" fill="url(#domeBody)"/>
+      <path id="domeEdge" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="1.5"/>
+      <g id="wells"></g>
+      <g id="caverns"></g>
 
-      <!-- glass body (behind the oil) -->
-      <path class="glass-fill"
-            d="M56 56 L82 546 Q84 570 106 570 L294 570 Q316 570 318 546 L344 56 Z"
-            fill="url(#glassBody)"/>
-
-      <g clip-path="url(#cavity)">
-        <path id="oil" fill="url(#oilBody)"/>
-        <path id="oilTint" fill="url(#oilSheen)"/>
-        <g id="bubbles"></g>
-        <!-- bright meniscus line riding the surface -->
-        <path id="surfaceLine" fill="none" stroke="#e0a355" stroke-opacity=".55" stroke-width="2"/>
-      </g>
-
-      <!-- glass outline and highlights (in front of the oil) -->
-      <path class="glass-edge"
-            d="M56 56 L82 546 Q84 570 106 570 L294 570 Q316 570 318 546 L344 56"
-            fill="none" stroke="rgba(255,255,255,.20)" stroke-width="2.5" stroke-linejoin="round"/>
-      <path class="glass-inner-edge"
-            d="M66 66 L91 540 Q93 560 112 560 L288 560 Q307 560 309 540 L334 66"
-            fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
-
-      <!-- rim -->
-      <ellipse cx="200" cy="56" rx="144" ry="17" fill="none" stroke="rgba(255,255,255,.26)" stroke-width="2.5"/>
-      <ellipse cx="200" cy="56" rx="134" ry="14" fill="#08070a" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
-
-      <!-- specular streaks -->
-      <path d="M92 104 L112 496" stroke="rgba(255,255,255,.26)" stroke-width="7" stroke-linecap="round" opacity=".5"/>
-      <path d="M306 130 L297 430" stroke="rgba(255,255,255,.13)" stroke-width="3.5" stroke-linecap="round" opacity=".45"/>
-
-      <!-- reflected pool on the surface below -->
-      <ellipse id="reflection" cx="200" cy="586" rx="120" ry="10" fill="url(#puddle)"/>
+      <!-- the surface -->
+      <line x1="-3000" y1="90" x2="3400" y2="90" stroke="rgba(255,255,255,.20)" stroke-width="1.5"/>
+      <g id="skyline" fill="rgba(255,255,255,.24)"></g>
     </svg>
+  </figure>
 
-    <div class="readout">
-      <div class="percent"><span id="percent">—</span><span class="pct-sign">%</span></div>
-      <p class="asof" id="asof">loading</p>
-    </div>
-
-    <div class="detail" id="detail" aria-live="polite">
-      <span id="barrels"></span>
-      <span class="detail-sep" aria-hidden="true">/</span>
-      <span id="capacity"></span>
-      <span class="delta" id="delta"></span>
-    </div>
+  <div class="readout">
+    <div class="days"><span id="days">—</span></div>
+    <p class="days-unit">days</p>
+    <p class="lede">of U.S. petroleum consumption, buried in salt caverns beneath the Gulf Coast</p>
+    <p class="detail" id="detail" aria-live="polite">&nbsp;</p>
   </div>
 
-  <footer class="credits">
-    <span id="sourceNote">Source: U.S. Energy Information Administration</span>
-  </footer>
+  <p class="scroll-cue" aria-hidden="true">what it took to guarantee them ↓</p>
+</section>
 
-</main>
+<!-- ─── dig down ───────────────────────────────────────────────────────── -->
+<section class="layers">
+  <h2 class="section-title">Going down</h2>
+  <p class="section-note">Each layer older than the one above it.</p>
+  <ol class="strata-list" id="strataList"></ol>
+</section>
+
+<!-- ─── the record ─────────────────────────────────────────────────────── -->
+<section class="ledger">
+  <h2 class="section-title">Every emergency drawdown</h2>
+  <p class="section-note">Four times in fifty years the reserve has been opened in an emergency. This is the complete list.</p>
+  <ol class="ledger-list" id="ledgerList"></ol>
+</section>
+
+<!-- ─── the doctrine ───────────────────────────────────────────────────── -->
+<section class="doctrine">
+  <blockquote>
+    <p id="quoteText"></p>
+    <cite id="quoteCite"></cite>
+  </blockquote>
+</section>
+
+<footer class="credits">
+  <p id="sourceNote">Source: U.S. Department of Energy and the Energy Information Administration</p>
+  <ul class="source-list" id="sourceList"></ul>
+</footer>
 
 <script src="js/app.js"></script>
 </body>

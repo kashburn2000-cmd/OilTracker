@@ -1,0 +1,33 @@
+{
+  "_note": "Hand-authored historical context. Every figure here should be checked against the primary sources listed in `sources` before this site goes public — it was written without network access and has not been verified line by line.",
+
+  "strata": [
+    { "year": "2022", "text": "180 million barrels released after Russia invades Ukraine — the largest drawdown in the reserve's history" },
+    { "year": "2011", "text": "30.6 million barrels released during the intervention in Libya" },
+    { "year": "2005", "text": "11 million barrels released after Hurricane Katrina" },
+    { "year": "2003", "text": "The United States invades Iraq" },
+    { "year": "1991", "text": "17.3 million barrels released during Operation Desert Storm" },
+    { "year": "1983", "text": "U.S. Central Command established, giving the doctrine a standing army" },
+    { "year": "1980", "text": "The Carter Doctrine declares the Persian Gulf a vital U.S. interest, to be defended by force" },
+    { "year": "1975", "text": "Congress creates the Strategic Petroleum Reserve" },
+    { "year": "1973", "text": "The oil embargo. Everything above this layer follows from it." }
+  ],
+
+  "drawdowns": [
+    { "date": "January 1991", "million_barrels": 17.3, "reason": "Operation Desert Storm" },
+    { "date": "September 2005", "million_barrels": 11.0, "reason": "Hurricane Katrina" },
+    { "date": "June 2011", "million_barrels": 30.6, "reason": "Intervention in Libya" },
+    { "date": "March 2022", "million_barrels": 180.0, "reason": "Russia's invasion of Ukraine" }
+  ],
+
+  "quote": {
+    "text": "An attempt by any outside force to gain control of the Persian Gulf region will be regarded as an assault on the vital interests of the United States of America, and such an assault will be repelled by any means necessary, including military force.",
+    "attribution": "Jimmy Carter, State of the Union address, January 23, 1980"
+  },
+
+  "sources": [
+    { "label": "SPR inventory and drawdown history", "url": "https://www.energy.gov/ceser/strategic-petroleum-reserve" },
+    { "label": "Weekly petroleum stocks and consumption", "url": "https://www.eia.gov/petroleum/supply/weekly/" },
+    { "label": "Carter Doctrine, State of the Union 1980", "url": "https://www.presidency.ucsb.edu/documents/the-state-the-union-address-delivered-before-joint-session-the-congress-3" }
+  ]
+}
