@@ -1,29 +1,17 @@
 {
-  "period": "2026-10-30",
-  "barrels_thousand": 282184,
+  "period": "2026-11-20",
+  "barrels_thousand": 273465,
   "capacity_thousand": 727000,
-  "percent": 38.81,
-  "consumption_thousand_bpd": 20376,
-  "days_of_consumption": 13.8,
-  "change_thousand": -399,
+  "percent": 37.62,
+  "consumption_thousand_bpd": 21239,
+  "days_of_consumption": 12.9,
+  "change_thousand": -2896,
   "units": "thousand barrels",
   "series": "WCSSTUS1",
   "source": "EIA",
   "cadence": "weekly",
-  "updated": "2026-11-27T00:59:26.114Z",
+  "updated": "2026-11-28T00:24:12.320Z",
   "history": [
-    {
-      "period": "2025-09-12",
-      "value": 405728
-    },
-    {
-      "period": "2025-09-19",
-      "value": 405958
-    },
-    {
-      "period": "2025-09-26",
-      "value": 406700
-    },
     {
       "period": "2025-10-03",
       "value": 406985
@@ -251,6 +239,18 @@
     {
       "period": "2026-10-30",
       "value": 282184
+    },
+    {
+      "period": "2026-11-06",
+      "value": 279535
+    },
+    {
+      "period": "2026-11-13",
+      "value": 276361
+    },
+    {
+      "period": "2026-11-20",
+      "value": 273465
     }
   ]
 }
